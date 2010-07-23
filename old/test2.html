@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+                    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<title>foo</title>
+<head>
+    <script type="text/javascript" src="lib/jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="lib/qunit.js"></script>
+    <link rel="stylesheet" href="lib/reset.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="lib/qunit.css" type="text/css" media="screen" />
+
+    <script type="text/javascript" src="parser2.js"></script>
+	
+    <script type="text/javascript">
+    $(document).ready(function(){
+	
+module("lexer");
+
+
+test("literalTest", function() {
+	var parser = literal('test') ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['test']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['est']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['st']);
+	parser.push('s');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['t']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+}); 
+
+test("literalFailTest", function() {
+	var parser = literal('tennis') ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['tennis']);
+	parser.push('t');
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['ennis']);
+	parser.push('e');
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['nnis']);
+	parser.push('s');
+	deepEqual(parser.state, "failed");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+}); 
+
+test("anyTest", function() {
+	var parser = new Any( literal('test')
+	                    , literal('tennis')
+					    ) ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['test', 'tennis']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['est', 'ennis']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['st', 'nnis']);
+	parser.push('s');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['t']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+});
+
+test("anyTestingTest", function() {
+	var parser = new Any( literal('test')
+	                    , literal('testing')
+					    ) ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['test', 'testing']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['est', 'esting']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['st', 'sting']);
+	parser.push('s');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['t', 'ting']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['ing']);
+	parser.push('i');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['ng']);
+	parser.push('n');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['g']);
+	parser.push('g');
+	console.log(parser);
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+});
+
+test("thenTestingTest", function() {
+	var parser = new Then( literal('test')
+	                     , literal('ing')
+					     ) ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['test']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['est']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['st']);
+	parser.push('s');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['t']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['ing']);
+	parser.push('i');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['ng']);
+	parser.push('n');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['g']);
+	parser.push('g');
+	console.log(parser);
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+});
+
+test("failingThenTestingTest", function() {
+	var parser = new Then( literal('test')
+	                     , literal('ing')
+					     ) ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['test']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['est']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['st']);
+	parser.push('s');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['t']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['ing']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "failed");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+});
+
+test("nonGreedyThenTestingTest", function() {
+	var parser = new Then( new Any( literal('boxes')
+	                              , literal('box')
+								  )
+	                     , literal('esc')
+					     ) ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['boxes', 'box']);
+	parser.push('b');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['oxes', 'ox']);
+	parser.push('o');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['xes', 'x']);
+	parser.push('x');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['esc']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['sc']);
+	parser.push('s');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['c']);
+	parser.push('c');
+	console.log(parser);
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+});
+
+
+test("greedyThenTestingTest", function() {
+	var parser = new GreedyThen( new Any( literal('boxes')
+	                                    , literal('box')
+								        )
+	                           , literal('esc')
+					           ) ;
+	deepEqual(parser.state, "empty");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['boxes', 'box']);
+	parser.push('b');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['oxes', 'ox']);
+	parser.push('o');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['xes', 'x']);
+	parser.push('x');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['es']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['s']);
+	parser.push('s');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['esc']);
+	parser.push('c');
+	console.log(parser);
+	deepEqual(parser.state, "failed");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+});
+
+test("optionalTest", function() {
+	var parser = new Any( new Empty()
+	                    , literal('test')
+					    ) ;
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['test']);
+	parser.push('t');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['est']);
+	parser.push('e');
+	console.log(parser);
+	deepEqual(parser.state, "open");
+	deepEqual(parser.closed, false);
+	deepEqual(parser.completions(), ['st']);
+	parser.push('a');
+	console.log(parser);
+	deepEqual(parser.state, "matched");
+	deepEqual(parser.closed, true);
+	deepEqual(parser.completions(), []);
+});	
+	
+test("sequenceTest", function() {
+  var parser = sequence( literal("Mary ")
+                       , literal("had ")
+                       , literal("a ")
+                       , literal("little ")
+                       , literal("lamb.")
+                       ) ; 
+  deepEqual(parser.state, "empty");
+  deepEqual(parser.closed, false);
+  deepEqual(parser.completions(), ['Mary ', 'Mary ']);	
+  parser.push('M');
+  parser.push('a');
+  parser.push('r');
+  parser.push('y');
+  parser.push(' ');
+  deepEqual(parser.state, "open");
+  deepEqual(parser.closed, false);
+  deepEqual(parser.completions(), ['had ']); 
+
+});
+
+test("nounClauseTest", function() {
+  var parser = noun_clause();
+  deepEqual(parser.state, "empty");
+  deepEqual(parser.closed, false);
+  deepEqual(parser.completions(), ["a ","an ","the ","some ","small ","big ","green ",
+    "yellow ","torch ","lamp ","sword ","cheese ","box ","boxes ","it ","him ","her ",
+    "them "]); 
+
+});
+  
+	
+});
+</script>
+  
+</head>
+<body>
+<div id="qunit">
+<h1 id="qunit-header">QUnit tests</h1>
+<h2 id="qunit-banner"></h2>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+</div>
+</body>
+</html>
