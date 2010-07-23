@@ -1,0 +1,7 @@
+Completion is a parser construction kit, written in Javascript.
+
+It is currently non-functional and in development.
+
+Parsers created with Completion are able to return possible completions to text parsed.
+
+This has required a few (possibly new) concepts, such as the 'matched' state of a parser being orthogonal to its 'closed' state.
